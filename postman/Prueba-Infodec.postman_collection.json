@@ -1,0 +1,249 @@
+{
+  "info": {
+    "name": "Prueba Infodec - APIs de Clima y Moneda",
+    "description": "Pregunta 4. Consumo de APIs públicas de clima (Open-Meteo) y tasa de cambio (Frankfurter / ExchangeRate-API), incluyendo los errores encontrados y su solución. También incluye la API propia de la aplicación de ciudades.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "lat", "value": "4.61" },
+    { "key": "lon", "value": "-74.08" },
+    { "key": "appUrl", "value": "http://localhost:8000" }
+  ],
+  "item": [
+    {
+      "name": "1. Clima (Open-Meteo)",
+      "item": [
+        {
+          "name": "1.1 Clima actual en Bogotá - OK",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://api.open-meteo.com/v1/forecast?latitude={{lat}}&longitude={{lon}}&current=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=America/Bogota",
+              "protocol": "https",
+              "host": ["api", "open-meteo", "com"],
+              "path": ["v1", "forecast"],
+              "query": [
+                { "key": "latitude", "value": "{{lat}}" },
+                { "key": "longitude", "value": "{{lon}}" },
+                { "key": "current", "value": "temperature_2m,relative_humidity_2m,wind_speed_10m" },
+                { "key": "timezone", "value": "America/Bogota" }
+              ]
+            },
+            "description": "Devuelve la temperatura, humedad y viento actuales para las coordenadas de Bogotá. No requiere API key."
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Trae la temperatura actual', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.current).to.have.property('temperature_2m');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "1.2 ERROR - latitud fuera de rango (400)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://api.open-meteo.com/v1/forecast?latitude=200&longitude={{lon}}&current=temperature_2m",
+              "protocol": "https",
+              "host": ["api", "open-meteo", "com"],
+              "path": ["v1", "forecast"],
+              "query": [
+                { "key": "latitude", "value": "200" },
+                { "key": "longitude", "value": "{{lon}}" },
+                { "key": "current", "value": "temperature_2m" }
+              ]
+            },
+            "description": "Error provocado: la latitud solo puede estar entre -90 y 90. La API responde 400 con {\"error\":true,\"reason\":\"Latitude must be in range of -90 to 90°...\"}. Solución: enviar una latitud válida (ver 1.1)."
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 400 (Bad Request)', () => pm.response.to.have.status(400));",
+              "pm.test('Explica la causa del error', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.error).to.eql(true);",
+              "    pm.expect(json.reason).to.include('Latitude');",
+              "});"
+            ]}
+          }]
+        }
+      ]
+    },
+    {
+      "name": "2. Cambio de moneda",
+      "item": [
+        {
+          "name": "2.1 Frankfurter USD -> EUR, MXN - OK",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://api.frankfurter.dev/v1/latest?from=USD&to=EUR,MXN",
+              "protocol": "https",
+              "host": ["api", "frankfurter", "dev"],
+              "path": ["v1", "latest"],
+              "query": [
+                { "key": "from", "value": "USD" },
+                { "key": "to", "value": "EUR,MXN" }
+              ]
+            },
+            "description": "Tasas de referencia del Banco Central Europeo. No requiere API key."
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Trae la tasa USD -> EUR', () => {",
+              "    pm.expect(pm.response.json().rates).to.have.property('EUR');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "2.2 ERROR - Frankfurter USD -> COP (404)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://api.frankfurter.dev/v1/latest?from=USD&to=COP",
+              "protocol": "https",
+              "host": ["api", "frankfurter", "dev"],
+              "path": ["v1", "latest"],
+              "query": [
+                { "key": "from", "value": "USD" },
+                { "key": "to", "value": "COP" }
+              ]
+            },
+            "description": "Error real encontrado: al pedir pesos colombianos la API responde 404 {\"message\":\"not found\"}. Diagnóstico: Frankfurter solo publica las ~30 monedas del Banco Central Europeo y COP no está entre ellas (se comprueba con GET /v1/currencies). Solución: usar un proveedor que sí incluya COP (ver 2.4)."
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 404: moneda no soportada', () => pm.response.to.have.status(404));"
+            ]}
+          }]
+        },
+        {
+          "name": "2.3 Diagnóstico - monedas soportadas por Frankfurter",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://api.frankfurter.dev/v1/currencies",
+              "protocol": "https",
+              "host": ["api", "frankfurter", "dev"],
+              "path": ["v1", "currencies"]
+            },
+            "description": "Lista las monedas soportadas. Se confirma que COP no aparece."
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('COP no está soportado', () => {",
+              "    pm.expect(pm.response.json()).to.not.have.property('COP');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "2.4 SOLUCIÓN - ExchangeRate-API USD -> COP",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://open.er-api.com/v6/latest/USD",
+              "protocol": "https",
+              "host": ["open", "er-api", "com"],
+              "path": ["v6", "latest", "USD"]
+            },
+            "description": "API alternativa gratuita y sin API key que sí incluye COP."
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Incluye la tasa USD -> COP', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.result).to.eql('success');",
+              "    pm.expect(json.rates).to.have.property('COP');",
+              "    console.log('1 USD = ' + json.rates.COP + ' COP');",
+              "});"
+            ]}
+          }]
+        }
+      ]
+    },
+    {
+      "name": "3. API propia - Ciudades (app local)",
+      "item": [
+        {
+          "name": "3.1 Ciudades de Colombia - OK",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{appUrl}}/?route=api/cities&country=COL",
+              "host": ["{{appUrl}}"],
+              "path": [""],
+              "query": [
+                { "key": "route", "value": "api/cities" },
+                { "key": "country", "value": "COL" }
+              ]
+            },
+            "description": "Requiere la app corriendo en local (php -S localhost:8000 -t public)."
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Máximo 10 ciudades en cada ranking', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.most_populated.length).to.be.at.most(10);",
+              "    pm.expect(json.least_populated.length).to.be.at.most(10);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "3.2 ERROR - sin país (400)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{appUrl}}/?route=api/cities",
+              "host": ["{{appUrl}}"],
+              "path": [""],
+              "query": [{ "key": "route", "value": "api/cities" }]
+            },
+            "description": "El campo país es obligatorio: la API responde 400."
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));"
+            ]}
+          }]
+        },
+        {
+          "name": "3.3 ERROR - país inexistente (404)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{appUrl}}/?route=api/cities&country=XYZ",
+              "host": ["{{appUrl}}"],
+              "path": [""],
+              "query": [
+                { "key": "route", "value": "api/cities" },
+                { "key": "country", "value": "XYZ" }
+              ]
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 404', () => pm.response.to.have.status(404));"
+            ]}
+          }]
+        }
+      ]
+    }
+  ]
+}
