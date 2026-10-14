@@ -122,6 +122,13 @@ entrar desde la misma red Wi-Fi a `http://IP-DEL-PC:8000`.
 
 ## Control de versiones
 
-El desarrollo se versionó con Git en commits pequeños y descriptivos (ver historial),
-siguiendo el formato de [Conventional Commits](https://www.conventionalcommits.org/es/)
-(`feat:`, `docs:`, `style:`…).
+El proyecto se versionó con Git en commits pequeños, uno por cada parte de la aplicación,
+en el mismo orden en que se construye una app MVC:
+
+1. Configuración y conexión a la base de datos
+2. Modelos (consultas SQL)
+3. Controlador y enrutamiento
+4. Interfaz (vistas, estilos y JavaScript)
+5. Documentación: consultas SQL, Postman, diagrama y respuestas
+
+Ver el historial completo en la pestaña *Commits* del repositorio.

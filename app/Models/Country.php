@@ -6,7 +6,7 @@ use App\Core\Database;
 
 /**
  * Consultas sobre la tabla `country`.
- * Cada país se identifica por su código de 3 letras (Code), por ejemplo "COL".
+ * Cada país se identifica por su código de 3 letras (Code), ejemplo "COL".
  */
 class Country
 {

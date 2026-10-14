@@ -1,6 +1,7 @@
 # Diagrama de la base de datos `world`
 
-GitHub dibuja este diagrama automáticamente (Mermaid).
+Diagrama entidad-relación de las tablas `country`, `city` y `countrylanguage`, con sus
+claves primarias (PK), claves foráneas (FK) y relaciones.
 
 ```mermaid
 erDiagram
