@@ -2,9 +2,9 @@
 /**
  * Configuración de la aplicación.
  *
- * Los valores se leen de variables de entorno si existen si no,
+ * Los valores se leen de variables de entorno si existen; si no,
  * se usan los valores por defecto de Laragon.
- * Asi no se suben credenciales por error al repositorio.
+ * Así no se suben credenciales por error al repositorio.
  */
 return [
     'db' => [
