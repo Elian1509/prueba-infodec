@@ -1,0 +1,137 @@
+/*
+ * Mobile first: los estilos base son para celular y las media queries
+ * del final reorganizan la página en pantallas más grandes (tablet y PC).
+ */
+:root {
+    --primary: #1c60b3;
+    --primary-light: #e8f0fa;
+    --accent: #2a9d8f;
+    --low: #e9a23b;
+    --text: #1f2933;
+    --muted: #616e7c;
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --border: #dde3ea;
+    --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.5;
+}
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.header {
+    background: var(--primary);
+    color: #fff;
+    padding: 24px 0;
+    margin-bottom: 20px;
+}
+.header h1 { margin: 0; font-size: 1.6rem; }
+.header p  { margin: 4px 0 0; opacity: .85; }
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+.card h2, .card h3 { margin-top: 0; }
+.card h2 small { color: var(--muted); font-weight: normal; }
+
+/* Formulario */
+.search label { display: block; font-weight: 600; margin-bottom: 6px; }
+.search__row { display: flex; flex-direction: column; gap: 8px; }
+select, input[type="search"], button {
+    font: inherit;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    min-height: 44px; /* tamaño cómodo para tocar con el dedo */
+}
+select, input[type="search"] { color: var(--text); background: #fff; }
+select { width: 100%; }
+button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+button:hover { opacity: .9; }
+
+.alert {
+    background: #fdecea;
+    color: #8a1c13;
+    border: 1px solid #f5c2bd;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+.note { color: var(--muted); font-size: .9rem; margin-top: -8px; }
+
+/* Datos del país */
+.country__facts {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 0;
+}
+.country__facts dt { color: var(--muted); font-size: .85rem; }
+.country__facts dd { margin: 0; font-weight: 600; }
+
+/* Rankings */
+.rankings { display: grid; grid-template-columns: 1fr; gap: 0 16px; }
+.ranking { margin: 0; padding-left: 24px; }
+.ranking li { margin-bottom: 10px; }
+.ranking li::marker { color: var(--muted); }
+.ranking__name { font-weight: 600; }
+.ranking__pop { float: right; font-variant-numeric: tabular-nums; }
+.bar {
+    display: block;
+    height: 6px;
+    background: var(--primary-light);
+    border-radius: 3px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+.bar > span { display: block; height: 100%; min-width: 2px; background: var(--accent); }
+.bar--low > span { background: var(--low); }
+
+/* Tabla */
+.table-header { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.table-header h3 { margin: 0; }
+.table-wrap { overflow-x: auto; } /* en celular la tabla se desplaza horizontalmente */
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+th { background: var(--primary-light); font-size: .9rem; position: sticky; top: 0; }
+tbody tr:hover { background: #fafbfc; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.footer { color: var(--muted); font-size: .85rem; padding-top: 8px; padding-bottom: 24px; }
+
+/* Tablet en adelante */
+@media (min-width: 640px) {
+    .search__row { flex-direction: row; }
+    .search__row select { flex: 1; }
+    .country__facts { grid-template-columns: repeat(2, 1fr); }
+    .table-header { flex-direction: row; justify-content: space-between; align-items: center; }
+}
+
+/* Computador */
+@media (min-width: 960px) {
+    .rankings { grid-template-columns: 1fr 1fr; }
+    .country__facts { grid-template-columns: repeat(5, 1fr); }
+}
