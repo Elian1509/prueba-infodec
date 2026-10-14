@@ -1,0 +1,13 @@
+# Enunciado de la prueba (no se publica)
+*.pdf
+
+# Script de la BD: se descarga del sitio oficial de MySQL
+world-db/
+*.zip
+
+# Editores y sistema operativo
+.claude/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
